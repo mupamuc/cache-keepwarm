@@ -1,0 +1,17 @@
+{
+  "name": "cache-keepwarm",
+  "version": "0.1.0",
+  "description": "Keeps the prompt cache of an idle Claude Code session warm: just before the cache lapses it submits a short service prompt, so your next message reads the context from the cache instead of writing it again. Off by default; /keepwarm on|off|status. Needs function hooks (early access).",
+  "author": { "name": "mupamuc", "url": "https://github.com/mupamuc" },
+  "repository": "https://github.com/mupamuc/cache-keepwarm",
+  "license": "MIT",
+  "keywords": ["mod", "function-hooks", "prompt-caching", "cost"],
+  "userConfig": {
+    "enabled": { "type": "boolean", "title": "Keep the cache warm", "description": "Ping before the cache lapses while the session is idle; /keepwarm on|off overrides this and is remembered", "default": false },
+    "ttl": { "type": "string", "title": "Cache lifetime", "description": "1h on a Claude subscription, 5m on an API key, cloud provider or usage credits", "default": "1h", "options": ["1h", "5m"] },
+    "leadSeconds": { "type": "number", "title": "Ping before expiry (s)", "description": "How long before the cache lapses the ping is sent (at most half the lifetime)", "default": 120 },
+    "maxPings": { "type": "number", "title": "Pings in a row", "description": "Most pings without a prompt of your own; then the cache is left to lapse", "default": 3 },
+    "minTokens": { "type": "number", "title": "Smallest cache kept (tokens)", "description": "Caches smaller than this are cheap to rebuild and are not pinged", "default": 20000 },
+    "message": { "type": "string", "title": "Ping text", "description": "The service prompt the model receives; empty uses the built-in one", "default": "" }
+  }
+}

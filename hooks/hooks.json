@@ -1,0 +1,4 @@
+{
+  "description": "cache-keepwarm: turn.step notes when the cache was last used; a 5-second clock submits a service prompt just before it lapses while the session is idle",
+  "modules": ["./keepwarm.ts"]
+}
