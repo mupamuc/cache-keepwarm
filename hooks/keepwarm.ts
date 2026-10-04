@@ -71,13 +71,23 @@ function isOn(): boolean {
   return switchedOn ?? cfg.enabled
 }
 
+// short on purpose: the status line already names the plugin
 function describe(now: number): string {
-  if (!isOn()) return 'keepwarm off'
-  if (!last) return 'keepwarm on · waiting for the first request'
-  if (last.tokens < cfg.minTokens) return `keepwarm on · ${fmtTokens(last.tokens)} cached, below ${fmtTokens(cfg.minTokens)}`
-  if (now >= last.at + cfg.ttlMs) return 'keepwarm on · cache already lapsed'
-  if (pings >= cfg.maxPings) return `keepwarm on · ${pings}/${cfg.maxPings} pings used, waiting for your prompt`
-  return `keepwarm on · ping at ${fmtTime(last.at + cfg.ttlMs - cfg.leadMs)} · ${pings}/${cfg.maxPings}`
+  if (!last) return 'on'
+  if (last.tokens < cfg.minTokens) return `skip <${fmtTokens(cfg.minTokens)}`
+  if (now >= last.at + cfg.ttlMs) return 'lapsed'
+  if (pings >= cfg.maxPings) return `${pings}/${cfg.maxPings} wait`
+  return `${fmtTime(last.at + cfg.ttlMs - cfg.leadMs)} · ${pings}/${cfg.maxPings}`
+}
+
+// the /keepwarm reply, read once, can say it in words
+function explain(now: number): string {
+  if (!isOn()) return 'off'
+  if (!last) return 'on, waiting for the first request'
+  if (last.tokens < cfg.minTokens) return `on, ${fmtTokens(last.tokens)} cached is below ${fmtTokens(cfg.minTokens)}: no ping`
+  if (now >= last.at + cfg.ttlMs) return 'on, the cache already lapsed: no ping'
+  if (pings >= cfg.maxPings) return `on, ${pings}/${cfg.maxPings} pings used, waiting for your prompt`
+  return `on, next ping at ${fmtTime(last.at + cfg.ttlMs - cfg.leadMs)}, ${pings}/${cfg.maxPings} used`
 }
 
 function refresh($: EngineInterface) {
@@ -189,6 +199,6 @@ export const register: Register = (on, options) => {
       await $.store.set(STORE_KEY, switchedOn)
       refresh($)
     }
-    return { text: describe(Date.now()) }
+    return { text: explain(Date.now()) }
   })
 }
