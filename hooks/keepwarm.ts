@@ -36,7 +36,12 @@ const DEFAULT_MESSAGE =
 
 type Last = { at: number; tokens: number }
 
+type SavedLast = Last & { session: string }
+
+const LAST_KEY = 'last'
+
 let last: Last | undefined
+let sessionId = ''
 let busy = false
 let pending = false
 let pings = 0
@@ -131,6 +136,12 @@ export const register: Register = (on, options) => {
     pings = 0
     const stored = await $.store.get(STORE_KEY).catch(() => undefined)
     switchedOn = typeof stored === 'boolean' ? stored : undefined
+    // an app restart or a resume reloads the mod: the same session keeps its cache, so keep counting from it
+    sessionId = await $.session.id().catch(() => '')
+    const saved = (await $.store.get(LAST_KEY).catch(() => undefined)) as SavedLast | undefined
+    if (saved && sessionId && saved.session === sessionId && typeof saved.at === 'number' && typeof saved.tokens === 'number') {
+      last = { at: saved.at, tokens: saved.tokens }
+    }
     await $.command
       .register({
         name: COMMAND,
@@ -177,6 +188,7 @@ export const register: Register = (on, options) => {
     if (u && u.cache_read_input_tokens + u.cache_creation_input_tokens > 0) {
       last = { at, tokens: u.cache_read_input_tokens + u.cache_creation_input_tokens + u.input_tokens }
       pending = false
+      if (sessionId) void $.store.set(LAST_KEY, { session: sessionId, ...last }).catch(() => undefined)
     }
     return r
   })
