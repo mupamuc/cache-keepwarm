@@ -12,6 +12,8 @@
     "leadSeconds": { "type": "number", "title": "Ping before expiry (s)", "description": "How long before the cache lapses the ping is sent (at most half the lifetime)", "default": 120 },
     "maxPings": { "type": "number", "title": "Pings in a row", "description": "Most pings without a prompt of your own; then the cache is left to lapse", "default": 3 },
     "minTokens": { "type": "number", "title": "Smallest cache kept (tokens)", "description": "Caches smaller than this are cheap to rebuild and are not pinged", "default": 20000 },
-    "message": { "type": "string", "title": "Ping text", "description": "The service prompt the model receives; empty uses the built-in one", "default": "" }
+    "message": { "type": "string", "title": "Ping text", "description": "The service prompt the model receives; empty uses the built-in one", "default": "" },
+    "band": { "type": "boolean", "title": "Row above the prompt", "description": "One row with the cache hit rate, the time left and a keepwarm checkbox", "default": true },
+    "status": { "type": "boolean", "title": "Status line entry", "description": "Also show the next ping time and count in the status line", "default": false }
   }
 }
